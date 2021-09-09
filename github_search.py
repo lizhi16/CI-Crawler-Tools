@@ -7,11 +7,13 @@ import sys
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
-keyword = "travis.yml"
+# the keywords for searching
+keyword = ".travis.yml"
+
 # save path for the list 
 path = "./repoList_travis_2021.txt"
 
-address = "https://github.com/search?l=&p={}&q=filename%3Atravis.yml+path%3A%2F+size%3A{}..{}&ref=advsearch&s=indexed&type=Code"
+address = "https://github.com/search?l=&p={}&q=filename%3A" +  keyword + "+path%3A%2F+size%3A{}..{}&ref=advsearch&s=indexed&type=Code"
 
 #driver = webdriver.Firefox(executable_path = "/N/u/zli10/Carbonate/malicious_dockerfile/bin/geckodriver")
 driver = webdriver.Firefox()
@@ -56,6 +58,7 @@ def resolve_github_list(startSize, endSize):
             # Get correct total page numbers from reqeusts
             try:
                 totalPage = int(soup.find('em', class_="current")['data-total-pages'])
+                print ("[INFO] total pages: ", totalPage)
             except Exception as e:
                 if int(endSize) - int(startSize) <= 1:
                     totalPage = 100
@@ -98,10 +101,12 @@ def search_results_numbers(startSize, endSize):
             print ("number: ", number)
             # if results over 1000, it will show "1,000"
             if "," in number:
+                print ("if: ", number)
                 if int(endSize) - int(startSize) == 1:
                     return 1000
                 return 0
             else:
+                print ("else: ", number)
                 return int(number)
         elif "We couldn't find any code matching" in link.text:
             return -1
@@ -118,7 +123,7 @@ def determine_search_steps(startSize, endSize, stopFlag):
         print("[test] couldn't find any code matching")
         tmpSize = endSize
         result = -1
-        while tmpSize <= stopFlag or result <= 0:
+        while tmpSize <= stopFlag and result <= 0:
             tmpSize = int(tmpSize*2)
             result = search_results_numbers(startSize, tmpSize)
 
@@ -132,11 +137,12 @@ def determine_search_steps(startSize, endSize, stopFlag):
         print ("Search done.")
         return 0, 0
 
+    # need to reduce the searching range
     if status == 0:
         print("[test] status == 0")
         tmpSize = endSize
         result = -1
-        while tmpSize > (startSize + 1) or result <= 0:
+        while tmpSize > (startSize + 1) and result <= 0:
             tmpSize = int(tmpSize/2)
             result = search_results_numbers(startSize, tmpSize)
 
@@ -159,8 +165,9 @@ def determine_search_steps(startSize, endSize, stopFlag):
 def main():
     # login
     login("ccs2021001@protonmail.com", "Lizhi906096237")
+    #login("ccs202003@protonmail.com", "Lizhiccs202003")
 
-    startSize = 0
+    startSize = 5
     step = 100
     stopFlag = 100000
     while startSize <= stopFlag:
@@ -168,8 +175,14 @@ def main():
         start, end = determine_search_steps(startSize, endSize, stopFlag)
         if start == 0 and end == 0:
             print ("[INFO] Stopping crawler...")
+            break
         
         print ("start in while", start, (end - start), end)
+
+        if end <= start:
+            print ("[ERR] ERR happend end < start: ", start, end)
+            end = start + 1
+        
         resolve_github_list(start, end)
         startSize = end + 1
 
