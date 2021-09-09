@@ -151,6 +151,7 @@ def determine_search_steps(startSize, endSize, stopFlag):
 
         return startSize, tmpSize
 
+    # need to add the searching range
     if status < 100 and status > 0:
         tmpSize = int(endSize*2)
         result = search_results_numbers(startSize, tmpSize)
@@ -159,7 +160,8 @@ def determine_search_steps(startSize, endSize, stopFlag):
             return startSize, tmpSize
 
         return startSize, endSize
-
+    
+    # the range is workable
     return startSize, endSize
 
 def main():
