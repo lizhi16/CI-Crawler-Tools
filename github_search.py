@@ -90,10 +90,14 @@ def resolve_github_list(startSize, endSize):
 def search_results_numbers(startSize, endSize):
     url = address.format("1", startSize, endSize)
 
-    content = session.get(url)
-    soup = BeautifulSoup(content.text,'html.parser')
+    links = []
+    flag = 5
+    while len(links) == 0 and flag > 0:
+        content = session.get(url)
+        soup = BeautifulSoup(content.text,'html.parser')
+        links = soup.find_all('h3')
+        flag = flag - 1
 
-    links = soup.find_all('h3')
     for link in links:
         # "Showing *** available code results" means useful info
         if "code results" in link.text:
@@ -151,7 +155,6 @@ def determine_search_steps(startSize, endSize, stopFlag):
 
         return startSize, tmpSize
 
-    # need to add the searching range
     if status < 100 and status > 0:
         tmpSize = int(endSize*2)
         result = search_results_numbers(startSize, tmpSize)
@@ -160,8 +163,7 @@ def determine_search_steps(startSize, endSize, stopFlag):
             return startSize, tmpSize
 
         return startSize, endSize
-    
-    # the range is workable
+
     return startSize, endSize
 
 def main():
@@ -169,7 +171,7 @@ def main():
     login("ccs2021001@protonmail.com", "Lizhi906096237")
     #login("ccs202003@protonmail.com", "Lizhiccs202003")
 
-    startSize = 5
+    startSize = 14
     step = 100
     stopFlag = 100000
     while startSize <= stopFlag:
