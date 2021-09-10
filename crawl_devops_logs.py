@@ -90,11 +90,11 @@ class travis_threading(threading.Thread):
 
 def start_analyze_travis():
     analyze_thread = []
-    for index in range(440000000, 440070000):
+    for index in range(440080000, 440900000):
         thread = travis_threading(index)
         print ("[INFO] Start to get index: " + str(index))
         # keep the threads < cores numbers
-        if len(threading.enumerate()) <= 30:
+        if len(threading.enumerate()) <= 32:
             thread.start()
             analyze_thread.append(thread)
         else:
