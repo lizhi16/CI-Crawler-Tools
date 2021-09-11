@@ -1,10 +1,12 @@
 import re
+import base64
 import pymongo
 import threading
 
 # ==== search pattern ====
 patterns = {}
-patterns["base64"] = r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$'
+# patterns["base64"] = r'^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$'
+patterns["base64"] = r'^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$'
 patterns["url"] = r'(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]'
 
 # ====== database ======
@@ -30,7 +32,7 @@ class analyzer_threading(threading.Thread):
         try:
             self.log_id = content["log_id"]
             self.github = content["github"]
-            self.log_text = content["log_text"]
+            self.log_text = content["author"] # error happend in init database
         except:
             return
         
@@ -67,13 +69,15 @@ def catch_c2_payload(content, type):
 
     # start to analyze
     for line in content.split("\n"):
-        line = line.strip()
+        line = line.replace("\r", " ").strip()
 
         # get the regex pattern of the specific type
         pattern = patterns[type]
         for item in line.split(" "):
             # search text fitting the type = "base64"
             if re.match(pattern, item):
+                if type == "base64" and len(item) < 20:
+                    continue
                 if item not in results:
                     results[item] = line
 
@@ -100,7 +104,7 @@ def Start_logs_analysis():
             thread.start()
             analyze_thread.append(thread)
         
-        # if index == 2:
+        # if index == 1:
         #     break
 
     for t in analyze_thread:
