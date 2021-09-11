@@ -35,7 +35,7 @@ def get_url_content(url):
     if content.status_code == 200:
         return content
     else:
-        print ("[ERROR] Can't resolve url:", url)
+        #print ("[ERROR] Can't resolve url:", url)
         return None
 
 # threads for crawler on CircleCI
@@ -140,22 +140,19 @@ class circleci_threading(threading.Thread):
             else:
                 print ("[ERROR] " + str(self.log_id) + " save into database failed...")
 
+
 # "path" contain the github repo link for circleci
-repo_dict = {}
 def Start_analyze_circleci(path):
     with open(path, "r") as log:
         analyze_thread = []
         for line in log.readlines():
-            if "https://" in line:
-                repo_name = line.split("/")[3].strip() + "/" + line.split("/")[4].strip()
-            else:
-                repo_name = line.strip()
-
-            # avoid rep
-            if repo_name in repo_dict:
+            try:
+                if "https://" in line:
+                    repo_name = line.split("/")[3].strip() + "/" + line.split("/")[4].strip()
+                else:
+                    repo_name = line.strip()
+            except:
                 continue
-            else:
-                repo_dict[repo_name] = 1
 
             print ("[INFO] Start to get index: " + str(repo_name))
             thread = circleci_threading(repo_name)
