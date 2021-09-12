@@ -1,5 +1,4 @@
 import re
-import base64
 import pymongo
 import threading
 
@@ -90,6 +89,8 @@ def Start_logs_analysis():
     analyze_thread = []
     for content in logs.find():
         index += 1
+        if index < 41713:
+            continue
         print ("[INFO] Start to get index: [" + str(index) + "/" + str(total) + "]")
         thread = analyzer_threading(content)
             
@@ -101,6 +102,7 @@ def Start_logs_analysis():
             for t in analyze_thread:
                 t.join()
 
+            analyze_thread = []
             thread.start()
             analyze_thread.append(thread)
         

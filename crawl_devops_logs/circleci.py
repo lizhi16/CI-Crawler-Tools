@@ -165,6 +165,7 @@ def Start_analyze_circleci(path):
                 for t in analyze_thread:
                     t.join()
 
+                analyze_thread = []
                 thread.start()
                 analyze_thread.append(thread)
 
