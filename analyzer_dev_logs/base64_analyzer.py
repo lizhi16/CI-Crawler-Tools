@@ -87,8 +87,8 @@ def Start_base64_analysis():
             thread.start()
             analyze_thread.append(thread)
         
-        if index == 1:
-            break
+        # if index == 1:
+        #     break
 
     for t in analyze_thread:
         t.join()
