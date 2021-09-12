@@ -1,4 +1,5 @@
 # !/bin/python3
+import time
 import requests
 import threading
 from database import insert_logs2db
@@ -54,8 +55,6 @@ class travis_threading(threading.Thread):
         else:
             print ("[ERROR] " + str(self.log_id) + " save into database failed...")
             return 0
-
-        return 1
     
     def resolve_repo_address(self, content):
         repo_link = ""
